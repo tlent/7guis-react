@@ -41,7 +41,7 @@ export default function FlightBooker() {
         </label>
         <select
           id="flightTypeSelect"
-          className="focus:shadow-outline w-full rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+          className="w-full rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
           value={flightType}
           onChange={handleFlightTypeChange}
         >
@@ -58,7 +58,7 @@ export default function FlightBooker() {
           Select Departure Date:
         </label>
         <input
-          className="focus:shadow-outline w-full rounded border py-2 px-3 leading-tight text-gray-700 shadow invalid:border-red-600 invalid:bg-red-100 focus:outline-none"
+          className="w-full rounded border py-2 px-3 leading-tight text-gray-700 shadow invalid:border-red-600 invalid:bg-red-100 focus:outline-none"
           id="departureDate"
           type="date"
           value={departureDate}
@@ -75,7 +75,7 @@ export default function FlightBooker() {
             Select Return Date:
           </label>
           <input
-            className="focus:shadow-outline w-full rounded border py-2 px-3 leading-tight text-gray-700 shadow invalid:border-red-600 invalid:bg-red-100 focus:outline-none"
+            className="w-full rounded border py-2 px-3 leading-tight text-gray-700 shadow invalid:border-red-600 invalid:bg-red-100 focus:outline-none"
             id="returnDate"
             type="date"
             value={returnDate || ""}

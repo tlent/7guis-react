@@ -45,7 +45,7 @@ export default function App() {
         <select
           name="selectedGUI"
           onChange={handleChange}
-          className="focus:shadow-outline w-full rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+          className="w-full rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
         >
           {GUIs.map(({ name }) => {
             return <option key={name}>{name}</option>;
