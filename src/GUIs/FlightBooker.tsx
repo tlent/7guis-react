@@ -4,7 +4,7 @@ import Button from "../components/Button";
 
 enum FlightType {
   OneWay = "One Way",
-  Return = "Return",
+  RoundTrip = "Round Trip",
 }
 
 export default function FlightBooker() {
@@ -16,25 +16,31 @@ export default function FlightBooker() {
 
   const isValid =
     departureDate >= today &&
-    (flightType !== FlightType.Return ||
+    (flightType !== FlightType.RoundTrip ||
       (returnDate && returnDate >= departureDate));
 
   function handleFlightTypeChange(event: React.ChangeEvent<HTMLSelectElement>) {
-    const flightType = event.target.value as FlightType;
-    setFlightType(flightType);
-    if (flightType === FlightType.OneWay) {
+    const selectedFlightType = event.target.value as FlightType;
+    setFlightType(selectedFlightType);
+    if (selectedFlightType === FlightType.OneWay) {
       setReturnDate(null);
-    } else if (flightType === FlightType.Return) {
+    } else if (selectedFlightType === FlightType.RoundTrip) {
       setReturnDate(departureDate);
     }
   }
 
   return (
-    <>
-      <div>
-        <label htmlFor="flightTypeSelect">Flight Type</label>
+    <div className="mx-auto max-w-lg">
+      <div className="mb-4">
+        <label
+          htmlFor="flightTypeSelect"
+          className="mb-2 block font-bold text-gray-700"
+        >
+          Select Flight Type:
+        </label>
         <select
           id="flightTypeSelect"
+          className="focus:shadow-outline w-full rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
           value={flightType}
           onChange={handleFlightTypeChange}
         >
@@ -43,10 +49,15 @@ export default function FlightBooker() {
           ))}
         </select>
       </div>
-      <div>
-        <label htmlFor="departureDate">Departure Date</label>
+      <div className="mb-4">
+        <label
+          htmlFor="departureDate"
+          className="mb-2 block font-bold text-gray-700"
+        >
+          Select Departure Date:
+        </label>
         <input
-          className="invalid:border-4 invalid:border-red-600"
+          className="focus:shadow-outline w-full rounded border py-2 px-3 leading-tight text-gray-700 shadow invalid:border-red-600 invalid:bg-red-100 focus:outline-none"
           id="departureDate"
           type="date"
           value={departureDate}
@@ -54,20 +65,27 @@ export default function FlightBooker() {
           onChange={(e) => setDepartureDate(e.target.value)}
         />
       </div>
-      {flightType === FlightType.Return && (
-        <div>
-          <label htmlFor="returnDate">Return Date</label>
+      {flightType === FlightType.RoundTrip && (
+        <div className="mb-4">
+          <label
+            htmlFor="returnDate"
+            className="mb-2 block font-bold text-gray-700"
+          >
+            Select Return Date:
+          </label>
           <input
-            className="invalid:border-4 invalid:border-red-600"
+            className="focus:shadow-outline w-full rounded border py-2 px-3 leading-tight text-gray-700 shadow invalid:border-red-600 invalid:bg-red-100 focus:outline-none"
             id="returnDate"
             type="date"
             value={returnDate || ""}
-            min={departureDate}
+            min={today < departureDate ? departureDate : today}
             onChange={(e) => setReturnDate(e.target.value)}
           />
         </div>
       )}
-      <Button disabled={!isValid}>Book</Button>
-    </>
+      <Button className="w-full" disabled={!isValid}>
+        Book {flightType} Flight
+      </Button>
+    </div>
   );
 }
