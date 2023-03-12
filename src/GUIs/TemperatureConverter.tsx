@@ -1,25 +1,30 @@
 import { useState } from "react";
 
+enum TemperatureScale {
+  Celsius,
+  Fahrenheit,
+}
+
 export default function TemperatureConverter() {
-  const [celsiusTemperature, setCelsiusTemperature] = useState(0);
-  const [fahrenheitTemperature, setFahrenheitTemperature] = useState(32);
+  const [temperature, setTemperature] = useState({
+    value: 0,
+    scale: TemperatureScale.Celsius,
+  });
+  const celsiusTemperature =
+    temperature.scale === TemperatureScale.Celsius
+      ? temperature.value
+      : round(fahrenheitToCelsius(temperature.value));
+  const fahrenheitTemperature =
+    temperature.scale === TemperatureScale.Fahrenheit
+      ? temperature.value
+      : round(celsiusToFahrenheit(temperature.value));
 
-  function handleCelsiusChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const celsiusTemperature = event.target.valueAsNumber;
-    setCelsiusTemperature(celsiusTemperature);
-    const fahrenheitTemperature = round(
-      celsiusToFahrenheit(celsiusTemperature)
-    );
-    setFahrenheitTemperature(fahrenheitTemperature);
-  }
-
-  function handleFahrenheitChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const fahrenheitTemperature = event.target.valueAsNumber;
-    setFahrenheitTemperature(fahrenheitTemperature);
-    const celsiusTemperature = round(
-      fahrenheitToCelsius(fahrenheitTemperature)
-    );
-    setCelsiusTemperature(celsiusTemperature);
+  function handleChange(
+    event: React.ChangeEvent<HTMLInputElement>,
+    scale: TemperatureScale
+  ) {
+    const value = event.target.valueAsNumber;
+    setTemperature({ value, scale });
   }
 
   return (
@@ -28,14 +33,14 @@ export default function TemperatureConverter() {
         type="number"
         value={celsiusTemperature}
         className={"w-20 rounded-md p-1"}
-        onChange={handleCelsiusChange}
+        onChange={(e) => handleChange(e, TemperatureScale.Celsius)}
       />{" "}
       Celsius ={" "}
       <input
         type="number"
         value={fahrenheitTemperature}
         className={"w-20 rounded-md p-1"}
-        onChange={handleFahrenheitChange}
+        onChange={(e) => handleChange(e, TemperatureScale.Fahrenheit)}
       />{" "}
       Fahrenheit
     </>
