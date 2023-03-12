@@ -83,7 +83,19 @@ export default function FlightBooker() {
           />
         </div>
       )}
-      <Button className="w-full" disabled={!isValid}>
+      <Button
+        className="w-full"
+        disabled={!isValid}
+        onClick={() =>
+          alert(
+            `You booked a ${flightType.toLowerCase()} flight departing on ${departureDate}${
+              flightType === FlightType.RoundTrip
+                ? ` and returning on ${returnDate}`
+                : ""
+            }`
+          )
+        }
+      >
         Book {flightType} Flight
       </Button>
     </div>
