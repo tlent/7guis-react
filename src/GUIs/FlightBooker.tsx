@@ -18,6 +18,7 @@ export default function FlightBooker() {
     departureDate >= today &&
     (flightType !== FlightType.RoundTrip ||
       (returnDate && returnDate >= departureDate));
+  const minReturnDate = today < departureDate ? departureDate : today;
 
   function handleFlightTypeChange(event: React.ChangeEvent<HTMLSelectElement>) {
     const selectedFlightType = event.target.value as FlightType;
@@ -25,7 +26,7 @@ export default function FlightBooker() {
     if (selectedFlightType === FlightType.OneWay) {
       setReturnDate(null);
     } else if (selectedFlightType === FlightType.RoundTrip) {
-      setReturnDate(departureDate);
+      setReturnDate(minReturnDate);
     }
   }
 
@@ -78,7 +79,7 @@ export default function FlightBooker() {
             id="returnDate"
             type="date"
             value={returnDate || ""}
-            min={today < departureDate ? departureDate : today}
+            min={minReturnDate}
             onChange={(e) => setReturnDate(e.target.value)}
           />
         </div>
