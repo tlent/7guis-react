@@ -9,6 +9,7 @@ enum FlightType {
 
 export default function FlightBooker() {
   const today = new Date().toISOString().split("T")[0];
+  const maxDate = "2029-12-31";
 
   const [flightType, setFlightType] = useState<FlightType>(FlightType.OneWay);
   const [departureDate, setDepartureDate] = useState<string>(today);
@@ -63,6 +64,7 @@ export default function FlightBooker() {
           type="date"
           value={departureDate}
           min={today}
+          max={maxDate}
           onChange={(e) => setDepartureDate(e.target.value)}
         />
       </div>
@@ -80,6 +82,7 @@ export default function FlightBooker() {
             type="date"
             value={returnDate || ""}
             min={minReturnDate}
+            max={maxDate}
             onChange={(e) => setReturnDate(e.target.value)}
           />
         </div>
