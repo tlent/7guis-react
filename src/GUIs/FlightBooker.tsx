@@ -31,6 +31,16 @@ export default function FlightBooker() {
     }
   }
 
+  function handleButtonClick() {
+    alert(
+      `You booked a ${flightType.toLowerCase()} flight departing on ${departureDate}${
+        flightType === FlightType.RoundTrip
+          ? ` and returning on ${returnDate}`
+          : ""
+      }`
+    );
+  }
+
   return (
     <div className="mx-auto max-w-lg">
       <div className="mb-4">
@@ -90,15 +100,7 @@ export default function FlightBooker() {
       <Button
         className="w-full"
         disabled={!isValid}
-        onClick={() =>
-          alert(
-            `You booked a ${flightType.toLowerCase()} flight departing on ${departureDate}${
-              flightType === FlightType.RoundTrip
-                ? ` and returning on ${returnDate}`
-                : ""
-            }`
-          )
-        }
+        onClick={handleButtonClick}
       >
         Book {flightType} Flight
       </Button>
