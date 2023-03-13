@@ -8,8 +8,8 @@ export default function Timer({
   initialTimerDuration: number;
   tickInterval: number;
 }) {
-  const [timerDuration, setTimerDuration] = useState(initialTimerDuration);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [timerDuration, setTimerDuration] = useState(initialTimerDuration);
 
   const timerShouldRun = elapsedTime < timerDuration;
 
@@ -35,8 +35,14 @@ export default function Timer({
 
   return (
     <>
-      <p>Elapsed time: {elapsedTime}</p>
-      <p>Timer duration: {timerDuration}</p>
+      <progress max={timerDuration} value={elapsedTime}></progress>
+      <p>Elapsed time: {Math.round(elapsedTime * 100) / 100}s</p>
+      <input
+        type="range"
+        value={timerDuration}
+        onChange={(e) => setTimerDuration(e.target.valueAsNumber)}
+      />
+      <p>Timer duration: {timerDuration}s</p>
       <Button onClick={() => setElapsedTime(0)}>Reset</Button>
     </>
   );
