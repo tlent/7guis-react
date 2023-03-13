@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Button from "../components/Button";
 
 export default function Timer({
@@ -9,10 +9,10 @@ export default function Timer({
   const [elapsedTime, setElapsedTime] = useState(0);
   const [timerDuration, setTimerDuration] = useState(initialTimerDuration);
 
+  const timerDurationRef = useRef(timerDuration);
+  timerDurationRef.current = timerDuration;
+
   const timerShouldRun = elapsedTime < timerDuration;
-  if (elapsedTime > timerDuration) {
-    setElapsedTime(timerDuration);
-  }
 
   useEffect(() => {
     if (!timerShouldRun) {
@@ -23,7 +23,7 @@ export default function Timer({
 
     function tick(timestamp: DOMHighResTimeStamp) {
       const dt = timestamp - prevTickTimestamp;
-      setElapsedTime((t) => t + dt / 1000);
+      setElapsedTime((t) => Math.min(t + dt / 1000, timerDurationRef.current));
       prevTickTimestamp = timestamp;
       id = requestAnimationFrame(tick);
     }
@@ -49,7 +49,11 @@ export default function Timer({
         value={timerDuration}
         min={1}
         max={60}
-        onChange={(e) => setTimerDuration(e.target.valueAsNumber)}
+        onChange={(e) => {
+          const newTimerDuration = e.target.valueAsNumber;
+          setTimerDuration(newTimerDuration);
+          setElapsedTime((t) => Math.min(t, newTimerDuration));
+        }}
       />
       <p className="mt-1">Timer duration: {timerDuration}s</p>
       <Button className="mt-4 w-full" onClick={() => setElapsedTime(0)}>
