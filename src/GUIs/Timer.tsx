@@ -12,26 +12,27 @@ export default function Timer({
   const [timerDuration, setTimerDuration] = useState(initialTimerDuration);
 
   const timerShouldRun = elapsedTime < timerDuration;
+  if (elapsedTime > timerDuration) {
+    setElapsedTime(timerDuration);
+  }
 
   useEffect(() => {
     if (!timerShouldRun) {
       return;
     }
-
     let prevTickTime = Date.now();
     const id = setInterval(tick, tickInterval);
 
     function tick() {
       const now = Date.now();
-      const dt = (now - prevTickTime) / 1000;
+      setElapsedTime((t) => t + (now - prevTickTime) / 1000);
       prevTickTime = now;
-      setElapsedTime((t) => Math.min(t + dt, timerDuration));
     }
 
     return () => {
       clearInterval(id);
     };
-  }, [tickInterval, timerShouldRun, timerDuration]);
+  }, [tickInterval, timerShouldRun]);
 
   return (
     <>
