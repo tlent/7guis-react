@@ -3,10 +3,8 @@ import Button from "../components/Button";
 
 export default function Timer({
   initialTimerDuration = 10,
-  tickInterval = 100,
 }: {
   initialTimerDuration: number;
-  tickInterval: number;
 }) {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [timerDuration, setTimerDuration] = useState(initialTimerDuration);
@@ -20,19 +18,20 @@ export default function Timer({
     if (!timerShouldRun) {
       return;
     }
-    let prevTickTime = Date.now();
-    const id = setInterval(tick, tickInterval);
+    let prevTickTimestamp = performance.now();
+    let id = requestAnimationFrame(tick);
 
-    function tick() {
-      const now = Date.now();
-      setElapsedTime((t) => t + (now - prevTickTime) / 1000);
-      prevTickTime = now;
+    function tick(timestamp: DOMHighResTimeStamp) {
+      const dt = timestamp - prevTickTimestamp;
+      setElapsedTime((t) => t + dt / 1000);
+      prevTickTimestamp = timestamp;
+      id = requestAnimationFrame(tick);
     }
 
     return () => {
-      clearInterval(id);
+      cancelAnimationFrame(id);
     };
-  }, [tickInterval, timerShouldRun]);
+  }, [timerShouldRun]);
 
   return (
     <>
