@@ -59,12 +59,15 @@ export default function Timer({
     if (!timerShouldRun) {
       return;
     }
-    let prevTickTimestamp = performance.now();
+    let prevTickTimestamp: DOMHighResTimeStamp;
     let id = requestAnimationFrame(tick);
 
     function tick(timestamp: DOMHighResTimeStamp) {
-      const deltaTime = (timestamp - prevTickTimestamp) / 1000;
-      dispatch({ type: ActionType.Tick, deltaTime });
+      if (prevTickTimestamp) {
+        const deltaTime = (timestamp - prevTickTimestamp) / 1000;
+        console.log(deltaTime);
+        dispatch({ type: ActionType.Tick, deltaTime });
+      }
       prevTickTimestamp = timestamp;
       id = requestAnimationFrame(tick);
     }
