@@ -34,16 +34,27 @@ export default function Timer({
   }, [timerShouldRun]);
 
   return (
-    <>
-      <progress max={timerDuration} value={elapsedTime}></progress>
-      <p>Elapsed time: {Math.round(elapsedTime * 100) / 100}s</p>
+    <div className="w-40">
+      <progress
+        className="h-4 w-full overflow-hidden rounded-md"
+        max={timerDuration}
+        value={elapsedTime}
+      ></progress>
+      <p className="mt-1">
+        Elapsed time: {Math.round(elapsedTime * 100) / 100}s
+      </p>
       <input
+        className="mt-4"
         type="range"
         value={timerDuration}
+        min={1}
+        max={60}
         onChange={(e) => setTimerDuration(e.target.valueAsNumber)}
       />
-      <p>Timer duration: {timerDuration}s</p>
-      <Button onClick={() => setElapsedTime(0)}>Reset</Button>
-    </>
+      <p className="mt-1">Timer duration: {timerDuration}s</p>
+      <Button className="mt-4 w-full" onClick={() => setElapsedTime(0)}>
+        Reset
+      </Button>
+    </div>
   );
 }
