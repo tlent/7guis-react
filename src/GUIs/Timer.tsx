@@ -65,7 +65,6 @@ export default function Timer({
     function tick(timestamp: DOMHighResTimeStamp) {
       if (prevTickTimestamp) {
         const deltaTime = (timestamp - prevTickTimestamp) / 1000;
-        console.log(deltaTime);
         dispatch({ type: ActionType.Tick, deltaTime });
       }
       prevTickTimestamp = timestamp;
