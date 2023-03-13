@@ -4,7 +4,7 @@ import Button from "../components/Button";
 export default function Timer({
   initialTimerDuration = 10,
 }: {
-  initialTimerDuration: number;
+  initialTimerDuration?: number;
 }) {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [timerDuration, setTimerDuration] = useState(initialTimerDuration);
