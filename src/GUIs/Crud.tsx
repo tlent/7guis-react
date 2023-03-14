@@ -3,7 +3,7 @@ import Button from "../components/button";
 export default function Crud() {
   const names = ["Hello", "Hi", "Hiya"];
   return (
-    <div className="w-96 space-y-3 rounded border border-neutral-400 px-10 py-5 shadow">
+    <div className="space-y-3 rounded border border-neutral-400 px-10 py-5 shadow">
       <div>
         <label htmlFor="filter-prefix">Filter prefix:</label>
         <input
@@ -13,7 +13,7 @@ export default function Crud() {
         />
       </div>
       <div className="flex">
-        <div className="mr-4 flex-grow">
+        <div className="mr-4 w-48">
           <select
             size={names.length}
             className="form-multiselect h-32 w-full bg-none"
@@ -23,16 +23,16 @@ export default function Crud() {
             ))}
           </select>
         </div>
-        <div className="flex-none">
+        <div>
           <div className="mb-2 flex justify-between">
             <label htmlFor="name" className="mr-4">
-              Name:{" "}
+              Name:
             </label>
             <input type="text" id="name" className="ml-auto h-8 w-32 rounded" />
           </div>
           <div className="flex justify-between">
             <label htmlFor="surname" className="mr-4">
-              Surname:{" "}
+              Surname:
             </label>
             <input type="text" id="surname" className="h-8 w-32 rounded" />
           </div>
