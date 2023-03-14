@@ -33,14 +33,14 @@ export default function TemperatureConverter() {
         type="number"
         value={celsiusTemperature}
         className={"w-20 rounded-md p-1"}
-        onChange={(e) => handleChange(e, TemperatureScale.Celsius)}
+        onChange={(event) => handleChange(event, TemperatureScale.Celsius)}
       />{" "}
       Celsius ={" "}
       <input
         type="number"
         value={fahrenheitTemperature}
         className={"w-20 rounded-md p-1"}
-        onChange={(e) => handleChange(e, TemperatureScale.Fahrenheit)}
+        onChange={(event) => handleChange(event, TemperatureScale.Fahrenheit)}
       />{" "}
       Fahrenheit
     </>

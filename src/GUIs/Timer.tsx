@@ -1,5 +1,5 @@
 import { useEffect, useReducer } from "react";
-import Button from "../components/Button";
+import Button from "../components/button";
 
 interface State {
   elapsedTime: number;
@@ -30,7 +30,7 @@ type Action = TickAction | SetDurationAction | ResetAction;
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case ActionType.Tick:
+    case ActionType.Tick: {
       return {
         ...state,
         elapsedTime: Math.min(
@@ -38,14 +38,17 @@ function reducer(state: State, action: Action): State {
           state.timerDuration
         ),
       };
-    case ActionType.SetDuration:
+    }
+    case ActionType.SetDuration: {
       return {
         ...state,
         timerDuration: action.newTimerDuration,
         elapsedTime: Math.min(state.elapsedTime, action.newTimerDuration),
       };
-    case ActionType.Reset:
+    }
+    case ActionType.Reset: {
       return { ...state, elapsedTime: 0 };
+    }
   }
 }
 
@@ -64,15 +67,15 @@ export default function Timer({ initialTimerDuration = 10 }: Props) {
     if (!timerShouldRun) {
       return;
     }
-    let prevTickTimestamp: DOMHighResTimeStamp;
+    let previousTickTimestamp: DOMHighResTimeStamp;
     let id = requestAnimationFrame(tick);
 
     function tick(timestamp: DOMHighResTimeStamp) {
-      if (prevTickTimestamp) {
-        const deltaTime = (timestamp - prevTickTimestamp) / 1000;
+      if (previousTickTimestamp) {
+        const deltaTime = (timestamp - previousTickTimestamp) / 1000;
         dispatch({ type: ActionType.Tick, deltaTime });
       }
-      prevTickTimestamp = timestamp;
+      previousTickTimestamp = timestamp;
       id = requestAnimationFrame(tick);
     }
 
@@ -97,10 +100,10 @@ export default function Timer({ initialTimerDuration = 10 }: Props) {
         value={state.timerDuration}
         min={1}
         max={60}
-        onChange={(e) => {
+        onChange={(event) => {
           dispatch({
             type: ActionType.SetDuration,
-            newTimerDuration: e.target.valueAsNumber,
+            newTimerDuration: event.target.valueAsNumber,
           });
         }}
       />

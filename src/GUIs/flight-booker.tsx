@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import Button from "../components/Button";
+import Button from "../components/button";
 
 enum FlightType {
   OneWay = "One Way",
@@ -95,8 +95,8 @@ export default function FlightBooker() {
           value={flight.departureDate}
           min={today}
           max={maxDate}
-          onChange={(e) =>
-            setFlight((f) => ({ ...f, departureDate: e.target.value }))
+          onChange={(event) =>
+            setFlight((f) => ({ ...f, departureDate: event.target.value }))
           }
         />
       </div>
@@ -115,8 +115,8 @@ export default function FlightBooker() {
             value={flight.returnDate}
             min={minReturnDate}
             max={maxDate}
-            onChange={(e) =>
-              setFlight((f) => ({ ...f, returnDate: e.target.value }))
+            onChange={(event) =>
+              setFlight((f) => ({ ...f, returnDate: event.target.value }))
             }
           />
         </div>
