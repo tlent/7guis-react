@@ -1,13 +1,13 @@
 import { useState } from "react";
 
 import {
-  Counter,
-  TemperatureConverter,
-  FlightBooker,
-  Timer,
-  Crud,
-  CircleDrawer,
   Cells,
+  CircleDrawer,
+  Counter,
+  Crud,
+  FlightBooker,
+  TemperatureConverter,
+  Timer,
 } from "./GUIs";
 
 const GUIs = [
