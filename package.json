@@ -10,8 +10,6 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "eslint-import-resolver-typescript": "^3.5.3",
-    "eslint-plugin-import": "^2.27.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
@@ -24,6 +22,8 @@
     "@vitejs/plugin-react-swc": "^3.0.0",
     "autoprefixer": "^10.4.14",
     "eslint": "^8.36.0",
+    "eslint-import-resolver-typescript": "^3.5.3",
+    "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-unicorn": "^46.0.0",
     "postcss": "^8.4.21",
     "prettier-plugin-tailwindcss": "^0.2.4",
