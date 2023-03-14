@@ -1,10 +1,10 @@
 import { useEffect, useReducer } from "react";
 import Button from "../components/Button";
 
-type State = {
+interface State {
   elapsedTime: number;
   timerDuration: number;
-};
+}
 
 enum ActionType {
   Tick = "tick",
@@ -12,17 +12,19 @@ enum ActionType {
   Reset = "reset",
 }
 
-type TickAction = {
+interface TickAction {
   type: ActionType.Tick;
   deltaTime: number;
-};
+}
 
-type SetDurationAction = {
+interface SetDurationAction {
   type: ActionType.SetDuration;
   newTimerDuration: number;
-};
+}
 
-type ResetAction = { type: ActionType.Reset };
+interface ResetAction {
+  type: ActionType.Reset;
+}
 
 type Action = TickAction | SetDurationAction | ResetAction;
 
@@ -47,9 +49,9 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-type Props = {
+interface Props {
   initialTimerDuration?: number;
-};
+}
 
 export default function Timer({ initialTimerDuration = 10 }: Props) {
   const [state, dispatch] = useReducer(reducer, {

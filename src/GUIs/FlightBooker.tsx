@@ -7,35 +7,55 @@ enum FlightType {
   RoundTrip = "Round Trip",
 }
 
+interface OneWayFlight {
+  type: FlightType.OneWay;
+  departureDate: string;
+}
+
+interface RoundTripFlight {
+  type: FlightType.RoundTrip;
+  departureDate: string;
+  returnDate: string;
+}
+
+type Flight = OneWayFlight | RoundTripFlight;
+
 export default function FlightBooker() {
   const today = new Date().toISOString().split("T")[0];
   const maxDate = "2029-12-31";
 
-  const [flightType, setFlightType] = useState<FlightType>(FlightType.OneWay);
-  const [departureDate, setDepartureDate] = useState<string>(today);
-  const [returnDate, setReturnDate] = useState<string | null>(null);
+  const [flight, setFlight] = useState<Flight>({
+    type: FlightType.OneWay,
+    departureDate: today,
+  });
 
   const isValid =
-    departureDate >= today &&
-    (flightType !== FlightType.RoundTrip ||
-      (returnDate && returnDate >= departureDate));
-  const minReturnDate = today < departureDate ? departureDate : today;
+    flight.departureDate >= today &&
+    (flight.type !== FlightType.RoundTrip ||
+      flight.returnDate >= flight.departureDate);
+  const minReturnDate =
+    today < flight.departureDate ? flight.departureDate : today;
 
   function handleFlightTypeChange(event: React.ChangeEvent<HTMLSelectElement>) {
     const selectedFlightType = event.target.value as FlightType;
-    setFlightType(selectedFlightType);
-    if (selectedFlightType === FlightType.OneWay) {
-      setReturnDate(null);
-    } else if (selectedFlightType === FlightType.RoundTrip) {
-      setReturnDate(minReturnDate);
+    if (selectedFlightType === FlightType.RoundTrip) {
+      setFlight((f) => ({
+        ...f,
+        type: selectedFlightType,
+        returnDate: minReturnDate,
+      }));
+    } else {
+      setFlight((f) => ({ ...f, type: selectedFlightType }));
     }
   }
 
   function handleButtonClick() {
     alert(
-      `You booked a ${flightType.toLowerCase()} flight departing on ${departureDate}${
-        flightType === FlightType.RoundTrip
-          ? ` and returning on ${returnDate}`
+      `You booked a ${flight.type.toLowerCase()} flight departing on ${
+        flight.departureDate
+      }${
+        flight.type === FlightType.RoundTrip
+          ? ` and returning on ${flight.returnDate}`
           : ""
       }`
     );
@@ -53,7 +73,7 @@ export default function FlightBooker() {
         <select
           id="flightTypeSelect"
           className="w-full rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
-          value={flightType}
+          value={flight.type}
           onChange={handleFlightTypeChange}
         >
           {Object.values(FlightType).map((type) => (
@@ -72,13 +92,15 @@ export default function FlightBooker() {
           className="w-full rounded border py-2 px-3 leading-tight text-gray-700 shadow invalid:border-red-600 invalid:bg-red-100 focus:outline-none"
           id="departureDate"
           type="date"
-          value={departureDate}
+          value={flight.departureDate}
           min={today}
           max={maxDate}
-          onChange={(e) => setDepartureDate(e.target.value)}
+          onChange={(e) =>
+            setFlight((f) => ({ ...f, departureDate: e.target.value }))
+          }
         />
       </div>
-      {flightType === FlightType.RoundTrip && (
+      {flight.type === FlightType.RoundTrip && (
         <div className="mb-4">
           <label
             htmlFor="returnDate"
@@ -90,10 +112,12 @@ export default function FlightBooker() {
             className="w-full rounded border py-2 px-3 leading-tight text-gray-700 shadow invalid:border-red-600 invalid:bg-red-100 focus:outline-none"
             id="returnDate"
             type="date"
-            value={returnDate || ""}
+            value={flight.returnDate}
             min={minReturnDate}
             max={maxDate}
-            onChange={(e) => setReturnDate(e.target.value)}
+            onChange={(e) =>
+              setFlight((f) => ({ ...f, returnDate: e.target.value }))
+            }
           />
         </div>
       )}
@@ -102,7 +126,7 @@ export default function FlightBooker() {
         disabled={!isValid}
         onClick={handleButtonClick}
       >
-        Book {flightType} Flight
+        Book {flight.type} Flight
       </Button>
     </div>
   );
