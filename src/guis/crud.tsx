@@ -11,46 +11,14 @@ enum ActionType {
   ChangeFilterPrefix = "change_filter_prefix",
 }
 
-interface AddAction {
-  type: ActionType.Add;
-}
-
-interface UpdateAction {
-  type: ActionType.Update;
-}
-
-interface DeleteAction {
-  type: ActionType.Delete;
-}
-
-interface SelectAction {
-  type: ActionType.Select;
-  id: number;
-}
-
-interface ChangeInputName {
-  type: ActionType.ChangeInputName;
-  name: string;
-}
-
-interface ChangeInputSurname {
-  type: ActionType.ChangeInputSurname;
-  surname: string;
-}
-
-interface ChangeFilterPrefix {
-  type: ActionType.ChangeFilterPrefix;
-  filterPrefix: string;
-}
-
 type Action =
-  | AddAction
-  | UpdateAction
-  | DeleteAction
-  | SelectAction
-  | ChangeInputName
-  | ChangeInputSurname
-  | ChangeFilterPrefix;
+  | { type: ActionType.Add }
+  | { type: ActionType.Update }
+  | { type: ActionType.Delete }
+  | { type: ActionType.Select; id: number }
+  | { type: ActionType.ChangeInputName; name: string }
+  | { type: ActionType.ChangeInputSurname; surname: string }
+  | { type: ActionType.ChangeFilterPrefix; filterPrefix: string };
 
 interface State {
   records: {
@@ -156,6 +124,10 @@ function reducer(state: State, action: Action): State {
   }
 }
 
+function matchesFilter(surname: string, filterPrefix: string) {
+  return surname.toLowerCase().startsWith(filterPrefix.toLowerCase());
+}
+
 export default function Crud() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const filteredRecords = state.records.filter((record) =>
@@ -255,8 +227,4 @@ export default function Crud() {
       </div>
     </div>
   );
-}
-
-function matchesFilter(surname: string, filterPrefix: string) {
-  return surname.toLowerCase().startsWith(filterPrefix.toLowerCase());
 }

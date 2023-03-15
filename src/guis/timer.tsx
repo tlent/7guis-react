@@ -1,32 +1,21 @@
 import { useEffect, useReducer } from "react";
 import Button from "../components/button";
 
-interface State {
-  elapsedTime: number;
-  timerDuration: number;
-}
-
 enum ActionType {
   Tick = "tick",
   SetDuration = "set_duration",
   Reset = "reset",
 }
 
-interface TickAction {
-  type: ActionType.Tick;
-  deltaTime: number;
-}
+type Action =
+  | { type: ActionType.Tick; deltaTime: number }
+  | { type: ActionType.SetDuration; newTimerDuration: number }
+  | { type: ActionType.Reset };
 
-interface SetDurationAction {
-  type: ActionType.SetDuration;
-  newTimerDuration: number;
+interface State {
+  elapsedTime: number;
+  timerDuration: number;
 }
-
-interface ResetAction {
-  type: ActionType.Reset;
-}
-
-type Action = TickAction | SetDurationAction | ResetAction;
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
