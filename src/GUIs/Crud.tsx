@@ -52,15 +52,11 @@ type Action =
   | ChangeInputSurname
   | ChangeFilterPrefix;
 
-interface FullName {
-  name: string;
-  surname: string;
-}
-
 interface State {
   records: {
     id: number;
-    fullName: FullName;
+    name: string;
+    surname: string;
   }[];
   selectedId?: number;
   inputName: string;
@@ -70,9 +66,9 @@ interface State {
 
 const initialState: State = {
   records: [
-    { id: 1, fullName: { name: "Hans", surname: "Emil" } },
-    { id: 2, fullName: { name: "Max", surname: "Mustermann" } },
-    { id: 3, fullName: { name: "Roman", surname: "Tisch" } },
+    { id: 1, name: "Hans", surname: "Emil" },
+    { id: 2, name: "Max", surname: "Mustermann" },
+    { id: 3, name: "Roman", surname: "Tisch" },
   ],
   selectedId: undefined,
   inputName: "",
@@ -84,26 +80,24 @@ let nextId = Math.max(0, ...initialState.records.map(({ id }) => id)) + 1;
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case ActionType.Add: {
-      const id = nextId++;
-      const fullName = {
+      const newRecord = {
+        id: nextId++,
         name: state.inputName,
         surname: state.inputSurname,
       };
       return {
         ...state,
-        records: [...state.records, { id, fullName }],
-        selectedId: id,
+        records: [...state.records, newRecord],
+        selectedId: newRecord.id,
       };
     }
     case ActionType.Update: {
-      const fullName = {
-        name: state.inputName,
-        surname: state.inputSurname,
-      };
       return {
         ...state,
         records: state.records.map((record) =>
-          record.id === state.selectedId ? { ...record, fullName } : record
+          record.id === state.selectedId
+            ? { ...record, name: state.inputName, surname: state.inputSurname }
+            : record
         ),
       };
     }
@@ -125,7 +119,7 @@ function reducer(state: State, action: Action): State {
       if (!selectedRecord) {
         throw new Error("Selected ID not found");
       }
-      const { name, surname } = selectedRecord.fullName;
+      const { name, surname } = selectedRecord;
       return {
         ...state,
         selectedId: action.id,
@@ -147,9 +141,7 @@ function reducer(state: State, action: Action): State {
         if (!selectedRecord) {
           throw new Error("Selected ID not found");
         }
-        if (
-          !matchesFilter(selectedRecord.fullName.surname, action.filterPrefix)
-        ) {
+        if (!matchesFilter(selectedRecord.surname, action.filterPrefix)) {
           return {
             ...state,
             selectedId: undefined,
@@ -167,7 +159,7 @@ function reducer(state: State, action: Action): State {
 export default function Crud() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const filteredRecords = state.records.filter((record) =>
-    matchesFilter(record.fullName.surname, state.filterPrefix)
+    matchesFilter(record.surname, state.filterPrefix)
   );
 
   return (
@@ -199,11 +191,10 @@ export default function Crud() {
               })
             }
           >
-            {filteredRecords.map(({ id, fullName }) => {
-              const name = `${fullName.surname}, ${fullName.name}`;
+            {filteredRecords.map(({ id, name, surname }) => {
               return (
                 <option key={id} value={id} selected={id === state.selectedId}>
-                  {name}
+                  {surname}, {name}
                 </option>
               );
             })}
