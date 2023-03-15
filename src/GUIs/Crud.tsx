@@ -202,7 +202,7 @@ export default function Crud() {
             {filteredRecords.map(({ id, fullName }) => {
               const name = `${fullName.surname}, ${fullName.name}`;
               return (
-                <option key={id} value={id}>
+                <option key={id} value={id} selected={id === state.selectedId}>
                   {name}
                 </option>
               );
