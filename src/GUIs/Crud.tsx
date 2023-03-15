@@ -8,6 +8,7 @@ enum ActionType {
   Select = "select",
   ChangeInputName = "change_input_name",
   ChangeInputSurname = "change_input_surname",
+  ChangeFilterPrefix = "change_filter_prefix",
 }
 
 interface AddAction {
@@ -37,13 +38,19 @@ interface ChangeInputSurname {
   surname: string;
 }
 
+interface ChangeFilterPrefix {
+  type: ActionType.ChangeFilterPrefix;
+  filterPrefix: string;
+}
+
 type Action =
   | AddAction
   | UpdateAction
   | DeleteAction
   | SelectAction
   | ChangeInputName
-  | ChangeInputSurname;
+  | ChangeInputSurname
+  | ChangeFilterPrefix;
 
 interface FullName {
   name: string;
@@ -58,6 +65,7 @@ interface State {
   selectedId?: number;
   inputName: string;
   inputSurname: string;
+  filterPrefix: string;
 }
 
 const initialState: State = {
@@ -69,6 +77,7 @@ const initialState: State = {
   selectedId: undefined,
   inputName: "",
   inputSurname: "",
+  filterPrefix: "",
 };
 
 let nextId = Math.max(0, ...initialState.records.map(({ id }) => id)) + 1;
@@ -130,22 +139,58 @@ function reducer(state: State, action: Action): State {
     case ActionType.ChangeInputSurname: {
       return { ...state, inputSurname: action.surname };
     }
+    case ActionType.ChangeFilterPrefix: {
+      if (state.selectedId) {
+        const selectedRecord = state.records.find(
+          (record) => record.id === state.selectedId
+        );
+        if (!selectedRecord) {
+          throw new Error("Selected ID not found");
+        }
+        if (
+          !matchesFilter(selectedRecord.fullName.surname, action.filterPrefix)
+        ) {
+          return {
+            ...state,
+            selectedId: undefined,
+            inputName: "",
+            inputSurname: "",
+            filterPrefix: action.filterPrefix,
+          };
+        }
+      }
+      return { ...state, filterPrefix: action.filterPrefix };
+    }
   }
 }
 
 export default function Crud() {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const filteredRecords = state.records.filter((record) =>
+    matchesFilter(record.fullName.surname, state.filterPrefix)
+  );
 
   return (
     <div className="space-y-3 rounded border border-neutral-400 px-10 py-5 shadow">
       <div className="space-x-2">
         <label htmlFor="filter-prefix">Filter prefix:</label>
-        <input type="text" id="filter-prefix" className="h-8 w-32 rounded" />
+        <input
+          type="text"
+          id="filter-prefix"
+          className="h-8 w-32 rounded"
+          value={state.filterPrefix}
+          onChange={(event) =>
+            dispatch({
+              type: ActionType.ChangeFilterPrefix,
+              filterPrefix: event.target.value,
+            })
+          }
+        />
       </div>
       <div className="flex space-x-4">
         <div className="w-48">
           <select
-            size={Math.max(2, state.records.length)}
+            size={Math.max(2, filteredRecords.length)}
             className="form-multiselect h-32 w-full bg-none"
             onChange={(event) =>
               dispatch({
@@ -154,7 +199,7 @@ export default function Crud() {
               })
             }
           >
-            {state.records.map(({ id, fullName }) => {
+            {filteredRecords.map(({ id, fullName }) => {
               const name = `${fullName.surname}, ${fullName.name}`;
               return (
                 <option key={id} value={id}>
@@ -210,4 +255,8 @@ export default function Crud() {
       </div>
     </div>
   );
+}
+
+function matchesFilter(surname: string, filterPrefix: string) {
+  return surname.toLowerCase().startsWith(filterPrefix.toLowerCase());
 }
