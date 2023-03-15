@@ -64,11 +64,12 @@ interface State {
   filterPrefix: string;
 }
 
+let nextId = 0;
 const initialState: State = {
   records: [
-    { id: 1, name: "Hans", surname: "Emil" },
-    { id: 2, name: "Max", surname: "Mustermann" },
-    { id: 3, name: "Roman", surname: "Tisch" },
+    { id: nextId++, name: "Hans", surname: "Emil" },
+    { id: nextId++, name: "Max", surname: "Mustermann" },
+    { id: nextId++, name: "Roman", surname: "Tisch" },
   ],
   selectedId: undefined,
   inputName: "",
@@ -76,7 +77,6 @@ const initialState: State = {
   filterPrefix: "",
 };
 
-let nextId = Math.max(0, ...initialState.records.map(({ id }) => id)) + 1;
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case ActionType.Add: {
