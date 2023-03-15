@@ -136,26 +136,28 @@ export default function Crud() {
 
   return (
     <div className="space-y-3 rounded border border-neutral-400 px-10 py-5 shadow">
-      <div className="space-x-2">
-        <label htmlFor="filter-prefix">Filter prefix:</label>
-        <input
-          type="text"
-          id="filter-prefix"
-          className="h-8 w-32 rounded"
-          value={state.filterPrefix}
-          onChange={(event) =>
-            dispatch({
-              type: ActionType.ChangeFilterPrefix,
-              filterPrefix: event.target.value,
-            })
-          }
-        />
-      </div>
       <div className="flex space-x-4">
-        <div className="w-48">
+        <div className="w-48 space-y-2">
+          <div className="flex space-x-2">
+            <label htmlFor="filter-prefix" className="flex-none">
+              Filter prefix:
+            </label>
+            <input
+              type="text"
+              id="filter-prefix"
+              className="h-8 w-full flex-1 rounded"
+              value={state.filterPrefix}
+              onChange={(event) =>
+                dispatch({
+                  type: ActionType.ChangeFilterPrefix,
+                  filterPrefix: event.target.value,
+                })
+              }
+            />
+          </div>
           <select
             size={Math.max(2, filteredRecords.length)}
-            className="form-multiselect h-32 w-full bg-none"
+            className="form-multiselect h-32 w-full rounded-sm bg-none"
             value={state.selectedId}
             onChange={(event) =>
               dispatch({
@@ -173,7 +175,7 @@ export default function Crud() {
             })}
           </select>
         </div>
-        <div className="space-y-2">
+        <div className="space-y-2 pt-10">
           <div className="flex justify-between space-x-3">
             <label htmlFor="name">Name:</label>
             <input
