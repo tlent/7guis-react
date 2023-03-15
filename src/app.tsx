@@ -8,7 +8,7 @@ import {
   FlightBooker,
   TemperatureConverter,
   Timer,
-} from "./GUIs";
+} from "./guis";
 
 const GUIs = [
   { name: "Counter", component: <Counter /> },
