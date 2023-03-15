@@ -134,7 +134,7 @@ function reducer(state: State, action: Action): State {
       return { ...state, inputSurname: action.surname };
     }
     case ActionType.ChangeFilterPrefix: {
-      if (state.selectedId) {
+      if (state.selectedId !== undefined) {
         const selectedRecord = state.records.find(
           (record) => record.id === state.selectedId
         );
@@ -234,18 +234,21 @@ export default function Crud() {
         </div>
       </div>
       <div className="space-x-2">
-        <Button onClick={() => dispatch({ type: ActionType.Add })}>
+        <Button
+          onClick={() => dispatch({ type: ActionType.Add })}
+          disabled={state.inputName === "" || state.inputSurname === ""}
+        >
           Create
         </Button>
         <Button
           onClick={() => dispatch({ type: ActionType.Update })}
-          disabled={!state.selectedId}
+          disabled={state.selectedId === undefined}
         >
           Update
         </Button>
         <Button
           onClick={() => dispatch({ type: ActionType.Delete })}
-          disabled={!state.selectedId}
+          disabled={state.selectedId === undefined}
         >
           Delete
         </Button>
