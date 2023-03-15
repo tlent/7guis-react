@@ -1,7 +1,141 @@
+import { useReducer } from "react";
 import Button from "../components/button";
 
+enum ActionType {
+  Add = "add",
+  Update = "update",
+  Delete = "delete",
+  Select = "select",
+  ChangeInputName = "change_input_name",
+  ChangeInputSurname = "change_input_surname",
+}
+
+interface AddAction {
+  type: ActionType.Add;
+}
+
+interface UpdateAction {
+  type: ActionType.Update;
+}
+
+interface DeleteAction {
+  type: ActionType.Delete;
+}
+
+interface SelectAction {
+  type: ActionType.Select;
+  id: number;
+}
+
+interface ChangeInputName {
+  type: ActionType.ChangeInputName;
+  name: string;
+}
+
+interface ChangeInputSurname {
+  type: ActionType.ChangeInputSurname;
+  surname: string;
+}
+
+type Action =
+  | AddAction
+  | UpdateAction
+  | DeleteAction
+  | SelectAction
+  | ChangeInputName
+  | ChangeInputSurname;
+
+interface FullName {
+  name: string;
+  surname: string;
+}
+
+interface State {
+  records: {
+    id: number;
+    fullName: FullName;
+  }[];
+  selectedId?: number;
+  inputName: string;
+  inputSurname: string;
+}
+
+const initialState: State = {
+  records: [
+    { id: 1, fullName: { name: "Hans", surname: "Emil" } },
+    { id: 2, fullName: { name: "Max", surname: "Mustermann" } },
+    { id: 3, fullName: { name: "Roman", surname: "Tisch" } },
+  ],
+  selectedId: undefined,
+  inputName: "",
+  inputSurname: "",
+};
+
+let nextId = Math.max(0, ...initialState.records.map(({ id }) => id)) + 1;
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case ActionType.Add: {
+      const id = nextId++;
+      const fullName = {
+        name: state.inputName,
+        surname: state.inputSurname,
+      };
+      return {
+        ...state,
+        records: [...state.records, { id, fullName }],
+        selectedId: id,
+      };
+    }
+    case ActionType.Update: {
+      const fullName = {
+        name: state.inputName,
+        surname: state.inputSurname,
+      };
+      return {
+        ...state,
+        records: state.records.map((record) =>
+          record.id === state.selectedId ? { ...record, fullName } : record
+        ),
+      };
+    }
+    case ActionType.Delete: {
+      return {
+        ...state,
+        records: state.records.filter(
+          (record) => record.id !== state.selectedId
+        ),
+        selectedId: undefined,
+        inputName: "",
+        inputSurname: "",
+      };
+    }
+    case ActionType.Select: {
+      const selectedRecord = state.records.find(
+        (record) => record.id === action.id
+      );
+      if (!selectedRecord) {
+        throw new Error("Selected ID not found");
+      }
+      const { name, surname } = selectedRecord.fullName;
+      return {
+        ...state,
+        selectedId: action.id,
+        inputName: name,
+        inputSurname: surname,
+      };
+    }
+    case ActionType.ChangeInputName: {
+      return { ...state, inputName: action.name };
+    }
+    case ActionType.ChangeInputSurname: {
+      return { ...state, inputSurname: action.surname };
+    }
+  }
+}
+
 export default function Crud() {
-  const names = ["Hello", "Hi", "Hiya"];
+  const [state, dispatch] = useReducer(reducer, initialState);
+
   return (
     <div className="space-y-3 rounded border border-neutral-400 px-10 py-5 shadow">
       <div className="space-x-2">
@@ -11,29 +145,68 @@ export default function Crud() {
       <div className="flex space-x-4">
         <div className="w-48">
           <select
-            size={names.length}
+            size={Math.max(2, state.records.length)}
             className="form-multiselect h-32 w-full bg-none"
+            onChange={(event) =>
+              dispatch({
+                type: ActionType.Select,
+                id: Number(event.target.value),
+              })
+            }
           >
-            {names.map((name) => (
-              <option key={name}>{name}</option>
-            ))}
+            {state.records.map(({ id, fullName }) => {
+              const name = `${fullName.surname}, ${fullName.name}`;
+              return (
+                <option key={id} value={id}>
+                  {name}
+                </option>
+              );
+            })}
           </select>
         </div>
         <div className="space-y-2">
           <div className="flex justify-between space-x-3">
             <label htmlFor="name">Name:</label>
-            <input type="text" id="name" className="h-8 w-32 rounded" />
+            <input
+              type="text"
+              id="name"
+              className="h-8 w-32 rounded"
+              value={state.inputName}
+              onChange={(event) =>
+                dispatch({
+                  type: ActionType.ChangeInputName,
+                  name: event.target.value,
+                })
+              }
+            />
           </div>
           <div className="flex justify-between space-x-3">
             <label htmlFor="surname">Surname:</label>
-            <input type="text" id="surname" className="h-8 w-32 rounded" />
+            <input
+              type="text"
+              id="surname"
+              className="h-8 w-32 rounded"
+              value={state.inputSurname}
+              onChange={(event) =>
+                dispatch({
+                  type: ActionType.ChangeInputSurname,
+                  surname: event.target.value,
+                })
+              }
+            />
           </div>
         </div>
       </div>
       <div className="space-x-2">
-        <Button>Create</Button>
-        <Button>Update</Button>
-        <Button>Delete</Button>
+        <Button onClick={() => dispatch({ type: ActionType.Add })}>
+          Create
+        </Button>
+        <Button onClick={() => dispatch({ type: ActionType.Update })}>
+          Update
+        </Button>
+        <Button onClick={() => dispatch({ type: ActionType.Delete })}>
+          Delete
+        </Button>
       </div>
     </div>
   );
