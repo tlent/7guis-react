@@ -53,13 +53,11 @@ type Action =
   | ChangeFilterPrefix;
 
 interface State {
-  records: Map<
-    number,
-    {
-      name: string;
-      surname: string;
-    }
-  >;
+  records: {
+    id: number;
+    name: string;
+    surname: string;
+  }[];
   selectedId?: number;
   inputName: string;
   inputSurname: string;
@@ -67,63 +65,57 @@ interface State {
 }
 
 const initialState: State = {
-  records: new Map([
-    [1, { name: "Hans", surname: "Emil" }],
-    [2, { name: "Max", surname: "Mustermann" }],
-    [3, { name: "Roman", surname: "Tisch" }],
-  ]),
+  records: [
+    { id: 1, name: "Hans", surname: "Emil" },
+    { id: 2, name: "Max", surname: "Mustermann" },
+    { id: 3, name: "Roman", surname: "Tisch" },
+  ],
   selectedId: undefined,
   inputName: "",
   inputSurname: "",
   filterPrefix: "",
 };
 
-let nextId = Math.max(0, ...initialState.records.keys()) + 1;
+let nextId = Math.max(0, ...initialState.records.map(({ id }) => id)) + 1;
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case ActionType.Add: {
-      const id = nextId++;
-      const records = new Map(state.records);
-      records.set(id, {
+      const newRecord = {
+        id: nextId++,
         name: state.inputName,
         surname: state.inputSurname,
-      });
+      };
       return {
         ...state,
-        records,
-        selectedId: id,
+        records: [...state.records, newRecord],
+        selectedId: newRecord.id,
       };
     }
     case ActionType.Update: {
-      if (!state.selectedId) {
-        return state;
-      }
-      const records = new Map(state.records);
-      records.set(state.selectedId, {
-        name: state.inputName,
-        surname: state.inputSurname,
-      });
       return {
         ...state,
-        records,
+        records: state.records.map((record) =>
+          record.id === state.selectedId
+            ? { ...record, name: state.inputName, surname: state.inputSurname }
+            : record
+        ),
       };
     }
     case ActionType.Delete: {
-      if (!state.selectedId) {
-        return state;
-      }
-      const records = new Map(state.records);
-      records.delete(state.selectedId);
       return {
         ...state,
-        records,
+        records: state.records.filter(
+          (record) => record.id !== state.selectedId
+        ),
         selectedId: undefined,
         inputName: "",
         inputSurname: "",
       };
     }
     case ActionType.Select: {
-      const selectedRecord = state.records.get(action.id);
+      const selectedRecord = state.records.find(
+        (record) => record.id === action.id
+      );
       if (!selectedRecord) {
         throw new Error("Selected ID not found");
       }
@@ -143,7 +135,9 @@ function reducer(state: State, action: Action): State {
     }
     case ActionType.ChangeFilterPrefix: {
       if (state.selectedId) {
-        const selectedRecord = state.records.get(state.selectedId);
+        const selectedRecord = state.records.find(
+          (record) => record.id === state.selectedId
+        );
         if (!selectedRecord) {
           throw new Error("Selected ID not found");
         }
@@ -164,9 +158,9 @@ function reducer(state: State, action: Action): State {
 
 export default function Crud() {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const filteredRecords = [...state.records]
-    .map(([id, record]) => ({ ...record, id }))
-    .filter(({ surname }) => matchesFilter(surname, state.filterPrefix));
+  const filteredRecords = state.records.filter((record) =>
+    matchesFilter(record.surname, state.filterPrefix)
+  );
 
   return (
     <div className="space-y-3 rounded border border-neutral-400 px-10 py-5 shadow">
