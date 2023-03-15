@@ -237,10 +237,16 @@ export default function Crud() {
         <Button onClick={() => dispatch({ type: ActionType.Add })}>
           Create
         </Button>
-        <Button onClick={() => dispatch({ type: ActionType.Update })}>
+        <Button
+          onClick={() => dispatch({ type: ActionType.Update })}
+          disabled={!state.selectedId}
+        >
           Update
         </Button>
-        <Button onClick={() => dispatch({ type: ActionType.Delete })}>
+        <Button
+          onClick={() => dispatch({ type: ActionType.Delete })}
+          disabled={!state.selectedId}
+        >
           Delete
         </Button>
       </div>
