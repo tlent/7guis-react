@@ -156,6 +156,7 @@ export default function Crud() {
           <select
             size={Math.max(2, filteredRecords.length)}
             className="form-multiselect h-32 w-full bg-none"
+            value={state.selectedId}
             onChange={(event) =>
               dispatch({
                 type: ActionType.Select,
@@ -165,7 +166,7 @@ export default function Crud() {
           >
             {filteredRecords.map(({ id, name, surname }) => {
               return (
-                <option key={id} value={id} selected={id === state.selectedId}>
+                <option key={id} value={id}>
                   {surname}, {name}
                 </option>
               );
