@@ -145,7 +145,7 @@ export default function Crud() {
             <input
               type="text"
               id="filter-prefix"
-              className="h-8 w-full flex-1 rounded"
+              className="h-8 w-full rounded-sm"
               value={state.filterPrefix}
               onChange={(event) =>
                 dispatch({
