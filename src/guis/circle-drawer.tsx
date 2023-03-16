@@ -38,6 +38,7 @@ export default function CircleDrawer() {
     ];
     setHistory(newHistory);
     setHistoryIndex(newHistory.length - 1);
+    setSelectedCircle(undefined);
   }
 
   function handleBoxMouseMove(event: React.MouseEvent<HTMLDivElement>) {
