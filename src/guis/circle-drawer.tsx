@@ -50,9 +50,7 @@ export default function CircleDrawer() {
     for (const circle of currentCircles) {
       const xDistance = offsetX - circle.offsetX;
       const yDistance = offsetY - circle.offsetY;
-      const distance = Math.sqrt(
-        Math.pow(xDistance, 2) + Math.pow(yDistance, 2)
-      );
+      const distance = Math.sqrt(xDistance ** 2 + yDistance ** 2);
       const radius = circle.diameter / 2;
       const isHovered = distance < radius;
       const isMin =
