@@ -93,8 +93,12 @@ export default function CircleDrawer() {
       ),
     ];
     setHistory(newHistory);
-    setSelectedCircle(undefined);
     setHistoryIndex(newHistory.length - 1);
+    setSelectedCircle(undefined);
+  }
+
+  function handleDiameterCancelClick() {
+    setSelectedCircle(undefined);
   }
 
   let circleAdjuster: JSX.Element | undefined;
@@ -117,7 +121,10 @@ export default function CircleDrawer() {
             max={100}
           />
         </div>
-        <Button onClick={handleDiameterSaveClick}>Save</Button>
+        <div className="space-x-2">
+          <Button onClick={handleDiameterCancelClick}>Cancel</Button>
+          <Button onClick={handleDiameterSaveClick}>Save</Button>
+        </div>
       </div>
     );
   }
