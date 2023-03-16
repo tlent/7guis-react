@@ -27,6 +27,7 @@ module.exports = {
         },
       },
     ],
+    "unicorn/no-useless-undefined": ["error", { checkArguments: false }],
   },
   settings: {
     "import/parsers": {
