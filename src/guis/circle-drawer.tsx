@@ -74,9 +74,7 @@ export default function CircleDrawer() {
     setSelectedCircle({ ...circle });
   }
 
-  function handleDiameterRangeChange(
-    event: React.ChangeEvent<HTMLInputElement>
-  ) {
+  function handleDiameterChange(event: React.ChangeEvent<HTMLInputElement>) {
     if (!selectedCircle) {
       throw new Error("Changed diameter with no selected circle");
     }
@@ -86,7 +84,7 @@ export default function CircleDrawer() {
     });
   }
 
-  function handleDiameterSaveClick() {
+  function handleDiameterSave() {
     const newHistory = [
       ...history.slice(0, historyIndex + 1),
       currentCircles.map((circle) =>
@@ -102,33 +100,6 @@ export default function CircleDrawer() {
     setSelectedCircle(undefined);
   }
 
-  let circleAdjuster: JSX.Element | undefined;
-  if (selectedCircle) {
-    circleAdjuster = (
-      <div className="flex flex-col items-center justify-center space-y-2">
-        <div>
-          <label htmlFor="diameter-range" className="text-sm font-semibold">
-            Adjust diameter of selected circle #{selectedCircle.id} at (
-            {selectedCircle.offsetX}, {selectedCircle.offsetY})
-          </label>
-        </div>
-        <div>
-          <input
-            type="range"
-            id="#diameter-range"
-            value={selectedCircle.diameter}
-            onChange={handleDiameterRangeChange}
-            min={1}
-            max={100}
-          />
-        </div>
-        <div className="space-x-2">
-          <Button onClick={handleDiameterCancelClick}>Cancel</Button>
-          <Button onClick={handleDiameterSaveClick}>Save</Button>
-        </div>
-      </div>
-    );
-  }
   return (
     <div className="space-y-4 rounded border border-neutral-400 p-6 shadow">
       <div className="flex justify-center space-x-2">
@@ -176,7 +147,52 @@ export default function CircleDrawer() {
           );
         })}
       </div>
-      {circleAdjuster}
+      {selectedCircle && (
+        <CircleDiameterAdjuster
+          circle={selectedCircle}
+          onDiameterChange={handleDiameterChange}
+          onSaveClick={handleDiameterSave}
+          onCancelClick={handleDiameterCancelClick}
+        />
+      )}
+    </div>
+  );
+}
+
+interface Props {
+  circle: Circle;
+  onDiameterChange: React.ChangeEventHandler<HTMLInputElement>;
+  onSaveClick: React.MouseEventHandler<HTMLButtonElement>;
+  onCancelClick: React.MouseEventHandler<HTMLButtonElement>;
+}
+function CircleDiameterAdjuster({
+  circle,
+  onDiameterChange,
+  onSaveClick,
+  onCancelClick,
+}: Props) {
+  return (
+    <div className="flex flex-col items-center justify-center space-y-2">
+      <div>
+        <label htmlFor="diameter-range" className="text-sm font-semibold">
+          Adjust diameter of selected circle #{circle.id} at ({circle.offsetX},{" "}
+          {circle.offsetY})
+        </label>
+      </div>
+      <div>
+        <input
+          type="range"
+          id="#diameter-range"
+          value={circle.diameter}
+          onChange={onDiameterChange}
+          min={1}
+          max={100}
+        />
+      </div>
+      <div className="space-x-2">
+        <Button onClick={onCancelClick}>Cancel</Button>
+        <Button onClick={onSaveClick}>Save</Button>
+      </div>
     </div>
   );
 }
