@@ -30,6 +30,9 @@ export default function Cells() {
 }
 
 function range(start: number, end: number): readonly number[] {
-  const length = end - start;
-  return [...Array.from({ length }).keys()].map((index) => index + start);
+  const values = [];
+  for (let value = start; value < end; value++) {
+    values.push(value);
+  }
+  return values;
 }
