@@ -28,7 +28,7 @@ export default function TemperatureConverter() {
   }
 
   return (
-    <>
+    <div className="text-center">
       <input
         type="number"
         value={celsiusTemperature}
@@ -43,7 +43,7 @@ export default function TemperatureConverter() {
         onChange={(event) => handleChange(event, TemperatureScale.Fahrenheit)}
       />{" "}
       Fahrenheit
-    </>
+    </div>
   );
 }
 
