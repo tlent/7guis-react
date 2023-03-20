@@ -74,14 +74,17 @@ export default function Timer({ initialTimerDuration = 10 }: Props) {
   }, [timerShouldRun]);
 
   return (
-    <div className="w-40">
+    <div className="mx-auto w-64 rounded border border-neutral-400 p-6 text-center shadow">
       <progress
         className="h-4 w-full overflow-hidden rounded-md"
         max={state.timerDuration}
         value={state.elapsedTime}
       ></progress>
       <p className="mt-1">
-        Elapsed time: {Math.round(state.elapsedTime * 100) / 100}s
+        Elapsed time:{" "}
+        <span className="inline-block w-10 text-left">
+          {Math.round(state.elapsedTime * 100) / 100}s
+        </span>
       </p>
       <input
         className="mt-4"
