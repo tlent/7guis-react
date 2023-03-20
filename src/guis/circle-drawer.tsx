@@ -99,7 +99,7 @@ export default function CircleDrawer() {
   }
 
   return (
-    <div className="space-y-4 rounded border border-neutral-400 p-6 shadow">
+    <div className="mx-auto w-fit space-y-4 rounded border border-neutral-400 p-6 shadow">
       <div className="flex justify-center space-x-2">
         <Button onClick={undo} disabled={historyIndex === 0}>
           Undo
