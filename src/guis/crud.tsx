@@ -135,7 +135,7 @@ export default function Crud() {
   );
 
   return (
-    <div className="space-y-3 rounded border border-neutral-400 px-10 py-5 shadow">
+    <div className="mx-auto w-fit space-y-3 rounded border border-neutral-400 px-10 py-5 shadow">
       <div className="flex space-x-4">
         <div className="w-48 space-y-2">
           <div className="flex space-x-2">
