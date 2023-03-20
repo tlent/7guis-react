@@ -62,7 +62,7 @@ export default function FlightBooker() {
   }
 
   return (
-    <div className="mx-auto max-w-lg">
+    <div className="mx-auto w-64 rounded border border-neutral-400 p-6 shadow">
       <div className="mb-4">
         <label
           htmlFor="flightTypeSelect"
