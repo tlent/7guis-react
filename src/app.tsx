@@ -28,7 +28,7 @@ export default function App() {
   }
 
   return (
-    <main className="py-4 md:container md:mx-auto">
+    <main className="pt-4">
       <h1 className="mb-5 p-4 text-center text-5xl font-semibold">
         <a
           href="https://eugenkiss.github.io/7guis/"
@@ -38,7 +38,7 @@ export default function App() {
         </a>{" "}
         with React
       </h1>
-      <div className="mx-auto w-fit">
+      <div className="mx-auto mb-4 w-fit">
         <label htmlFor="selectedGUI" className="sr-only">
           Select a GUI
         </label>
@@ -52,7 +52,7 @@ export default function App() {
           })}
         </select>
       </div>
-      <div className="m-4 mx-auto w-fit p-4">{selectedGui.component}</div>
+      {selectedGui.component}
     </main>
   );
 }
