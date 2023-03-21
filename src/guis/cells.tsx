@@ -1,6 +1,17 @@
+import { useState } from "react";
+
 const ALPHABET = [..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"];
 
+const ROW_COUNT = 100;
+const COLUMN_COUNT = 26;
+
+type CellValue = number | string | undefined;
+
 export default function Cells() {
+  const [cellValues, setCellValues] = useState<CellValue[]>(
+    Array.from({ length: ROW_COUNT * COLUMN_COUNT })
+  );
+
   return (
     <div className="overflow-scroll px-2 py-4">
       <table className="border-collapse">
@@ -18,16 +29,26 @@ export default function Cells() {
           </tr>
         </thead>
         <tbody>
-          {range(0, 100).map((row) => (
+          {range(0, ROW_COUNT).map((row) => (
             <tr key={row}>
               <th className="border border-neutral-400 border-r-black">
                 {row}
               </th>
-              {range(0, 26).map((column) => (
-                <td key={column} className="border border-neutral-400">
-                  <Cell row={row} column={column} />
-                </td>
-              ))}
+              {range(0, 26).map((column) => {
+                const index = row * COLUMN_COUNT + column;
+                const onChange = (value: CellValue) => {
+                  setCellValues((cellValues) => {
+                    const newCellValues = [...cellValues];
+                    newCellValues[index] = value;
+                    return newCellValues;
+                  });
+                };
+                return (
+                  <td key={column} className="border border-neutral-400">
+                    <Cell value={cellValues[index]} onChange={onChange} />
+                  </td>
+                );
+              })}
             </tr>
           ))}
         </tbody>
@@ -36,11 +57,25 @@ export default function Cells() {
   );
 }
 
-function Cell({ row, column }: { row: number; column: number }) {
+interface CellProps {
+  value: CellValue;
+  onChange: (value: CellValue) => void;
+}
+function Cell({ value, onChange }: CellProps) {
   return (
-    <div className="w-32 p-1 text-right text-sm">
-      ({row}, {column})
-    </div>
+    <input
+      type="text"
+      className="w-32 border-0 p-1 text-right text-sm"
+      value={value}
+      onChange={(event) => {
+        let value;
+        if (event.target.value !== "") {
+          const number = event.target.valueAsNumber;
+          value = Number.isNaN(number) ? event.target.value : number;
+        }
+        onChange(value);
+      }}
+    />
   );
 }
 
