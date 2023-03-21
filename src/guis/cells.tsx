@@ -3,7 +3,7 @@ import { useState } from "react";
 const ALPHABET = [..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"];
 
 const ROW_COUNT = 100;
-const COLUMN_COUNT = 26;
+const COLUMN_COUNT = ALPHABET.length;
 
 type CellValue = number | string | undefined;
 
