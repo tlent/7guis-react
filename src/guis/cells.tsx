@@ -44,7 +44,7 @@ export default function Cells() {
                   });
                 };
                 return (
-                  <td key={column} className="border border-neutral-400">
+                  <td key={column} className="h-8 border border-neutral-400">
                     <Cell value={cellValues[index]} onChange={onChange} />
                   </td>
                 );
@@ -62,19 +62,34 @@ interface CellProps {
   onChange: (value: CellValue) => void;
 }
 function Cell({ value, onChange }: CellProps) {
+  const [focused, setFocused] = useState(false);
+
+  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const value = event.target.value;
+    const number = Number(value);
+    let cellValue: CellValue;
+    if (value === "") {
+      cellValue = undefined;
+    } else if (Number.isNaN(number)) {
+      cellValue = value;
+    } else {
+      cellValue = number;
+    }
+    onChange(cellValue);
+  }
+
+  let textAlign = "text-left";
+  if (!focused && typeof value === "number") {
+    textAlign = "text-right";
+  }
   return (
     <input
       type="text"
-      className="w-32 border-0 p-1 text-right text-sm"
-      value={value}
-      onChange={(event) => {
-        let value;
-        if (event.target.value !== "") {
-          const number = event.target.valueAsNumber;
-          value = Number.isNaN(number) ? event.target.value : number;
-        }
-        onChange(value);
-      }}
+      className={`h-full border-0 text-sm ${textAlign}`}
+      value={value ?? ""}
+      onChange={handleChange}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
     />
   );
 }
