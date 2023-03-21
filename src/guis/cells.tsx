@@ -34,7 +34,7 @@ export default function Cells() {
               <th className="border border-neutral-400 border-r-black">
                 {row}
               </th>
-              {range(0, 26).map((column) => {
+              {range(0, COLUMN_COUNT).map((column) => {
                 const index = row * COLUMN_COUNT + column;
                 const onChange = (value: CellValue) => {
                   setCellValues((cellValues) => {
