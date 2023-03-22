@@ -5,12 +5,31 @@ const ALPHABET = [..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"];
 const ROW_COUNT = 100;
 const COLUMN_COUNT = ALPHABET.length;
 
-type CellValue = number | string | undefined;
+// TODO: Add support for formulas
+
+interface Formula {
+  formula: string;
+  dependencies: readonly string[];
+  value: number;
+}
+
+type CellValue = number | string | Formula;
+type State = Map<number, CellValue>;
 
 export default function Cells() {
-  const [cellValues, setCellValues] = useState<CellValue[]>(
-    Array.from({ length: ROW_COUNT * COLUMN_COUNT })
-  );
+  const [cellValues, setCellValues] = useState<State>(new Map());
+
+  function handleCellChange(index: number, value?: CellValue) {
+    setCellValues((previousValues) => {
+      const newValues = new Map(previousValues);
+      if (value === undefined) {
+        newValues.delete(index);
+      } else {
+        newValues.set(index, value);
+      }
+      return newValues;
+    });
+  }
 
   return (
     <div className="overflow-scroll px-2 py-4">
@@ -36,16 +55,15 @@ export default function Cells() {
               </th>
               {range(0, COLUMN_COUNT).map((column) => {
                 const index = row * COLUMN_COUNT + column;
-                const onChange = (value: CellValue) => {
-                  setCellValues((cellValues) => {
-                    const newCellValues = [...cellValues];
-                    newCellValues[index] = value;
-                    return newCellValues;
-                  });
-                };
+                const value = cellValues.get(index);
                 return (
                   <td key={column} className="h-8 border border-neutral-400">
-                    <Cell value={cellValues[index]} onChange={onChange} />
+                    <Cell
+                      cellValue={value}
+                      onChange={(cellValue?: CellValue) =>
+                        handleCellChange(index, cellValue)
+                      }
+                    />
                   </td>
                 );
               })}
@@ -58,16 +76,17 @@ export default function Cells() {
 }
 
 interface CellProps {
-  value: CellValue;
-  onChange: (value: CellValue) => void;
+  cellValue?: CellValue;
+  onChange: (cellValue?: CellValue) => void;
 }
-function Cell({ value, onChange }: CellProps) {
+function Cell({ cellValue, onChange }: CellProps) {
+  const [value, setValue] = useState("");
   const [focused, setFocused] = useState(false);
 
-  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const value = event.target.value;
+  function handleBlur() {
+    setFocused(false);
     const number = Number(value);
-    let cellValue: CellValue;
+    let cellValue: CellValue | undefined;
     if (value === "") {
       cellValue = undefined;
     } else if (Number.isNaN(number)) {
@@ -79,17 +98,17 @@ function Cell({ value, onChange }: CellProps) {
   }
 
   let textAlign = "text-left";
-  if (!focused && typeof value === "number") {
+  if (!focused && typeof cellValue === "number") {
     textAlign = "text-right";
   }
   return (
     <input
       type="text"
       className={`h-full border-0 text-sm ${textAlign}`}
-      value={value ?? ""}
-      onChange={handleChange}
+      value={value}
+      onChange={(event) => setValue(event.target.value)}
       onFocus={() => setFocused(true)}
-      onBlur={() => setFocused(false)}
+      onBlur={handleBlur}
     />
   );
 }
