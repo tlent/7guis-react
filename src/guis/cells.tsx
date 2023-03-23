@@ -1,33 +1,63 @@
 import { useState } from "react";
 
 const ALPHABET = [..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"];
-
 const ROW_COUNT = 100;
-const COLUMN_COUNT = ALPHABET.length;
 
-// TODO: Add support for formulas
+const REFERENCE_FORMULA_REGEX = /^=(?<reference>[a-z]\d+)$/i;
+const OPERATION_FORMULA_REGEX =
+  /^=\s*(?<operation>sum|average|count|max|min)\s*\(\s*(?<start>[a-z]\d+)\s*:\s*(?<end>[a-z]\d+)\s*\)\s*$/i;
 
-interface Formula {
-  formula: string;
-  dependencies: readonly string[];
-  value: number;
+enum Operation {
+  Sum = "SUM",
+  Average = "AVERAGE",
+  Count = "COUNT",
+  Max = "MAX",
+  Min = "MIN",
 }
 
-type CellValue = number | string | Formula;
-type State = Map<number, CellValue>;
+interface OperationFormula {
+  type: "formula";
+  formula: string;
+  operation: Operation;
+  start: CellReference;
+  end: CellReference;
+}
+
+interface ReferenceFormula {
+  type: "referenceFormula";
+  formula: string;
+  reference: CellReference;
+}
+
+interface InvalidFormula {
+  type: "invalidFormula";
+  formula: string;
+}
+
+type Formula = OperationFormula | ReferenceFormula | InvalidFormula;
+
+type CellReference = string;
+
+type Cell =
+  | { type: "empty" }
+  | { type: "number"; value: number }
+  | { type: "string"; value: string }
+  | Formula;
+
+type State = Map<CellReference, Cell>;
 
 export default function Cells() {
-  const [cellValues, setCellValues] = useState<State>(new Map());
+  const [cells, setCells] = useState<State>(new Map());
 
-  function handleCellChange(index: number, value?: CellValue) {
-    setCellValues((previousValues) => {
-      const newValues = new Map(previousValues);
-      if (value === undefined) {
-        newValues.delete(index);
+  function handleCellChange(cellReference: CellReference, cell: Cell) {
+    setCells((previousCells) => {
+      const newCells = new Map(previousCells);
+      if (cell.type === "empty") {
+        newCells.delete(cellReference);
       } else {
-        newValues.set(index, value);
+        newCells.set(cellReference, cell);
       }
-      return newValues;
+      return newCells;
     });
   }
 
@@ -53,16 +83,14 @@ export default function Cells() {
               <th className="border border-neutral-400 border-r-black">
                 {row}
               </th>
-              {range(0, COLUMN_COUNT).map((column) => {
-                const index = row * COLUMN_COUNT + column;
-                const value = cellValues.get(index);
+              {ALPHABET.map((column) => {
+                const cellReference = `${column}${row}`;
+                const cell = cells.get(cellReference) ?? { type: "empty" };
                 return (
                   <td key={column} className="h-8 border border-neutral-400">
                     <Cell
-                      cellValue={value}
-                      onChange={(cellValue?: CellValue) =>
-                        handleCellChange(index, cellValue)
-                      }
+                      cell={cell}
+                      onChange={(cell) => handleCellChange(cellReference, cell)}
                     />
                   </td>
                 );
@@ -76,29 +104,31 @@ export default function Cells() {
 }
 
 interface CellProps {
-  cellValue?: CellValue;
-  onChange: (cellValue?: CellValue) => void;
+  cell: Cell;
+  onChange: (cell: Cell) => void;
 }
-function Cell({ cellValue, onChange }: CellProps) {
-  const [value, setValue] = useState("");
+function Cell({ cell, onChange }: CellProps) {
+  const [inputValue, setInputValue] = useState("");
   const [focused, setFocused] = useState(false);
 
   function handleBlur() {
     setFocused(false);
-    const number = Number(value);
-    let cellValue: CellValue | undefined;
-    if (value === "") {
-      cellValue = undefined;
+    const number = Number(inputValue);
+    let cell: Cell;
+    if (inputValue === "") {
+      cell = { type: "empty" };
+    } else if (inputValue.startsWith("=")) {
+      cell = parseFormula(inputValue);
     } else if (Number.isNaN(number)) {
-      cellValue = value;
+      cell = { type: "string", value: inputValue };
     } else {
-      cellValue = number;
+      cell = { type: "number", value: number };
     }
-    onChange(cellValue);
+    onChange(cell);
   }
 
   let textAlign = "text-left";
-  if (!focused && typeof cellValue === "number") {
+  if (!focused && cell.type === "number") {
     textAlign = "text-right";
   }
 
@@ -106,12 +136,34 @@ function Cell({ cellValue, onChange }: CellProps) {
     <input
       type="text"
       className={`h-full cursor-default border-0 text-sm focus:cursor-text ${textAlign}`}
-      value={value}
-      onChange={(event) => setValue(event.target.value)}
+      value={inputValue}
+      onChange={(event) => setInputValue(event.target.value)}
       onFocus={() => setFocused(true)}
       onBlur={handleBlur}
     />
   );
+}
+
+function parseFormula(formula: string): Formula {
+  const referenceRegexResult = REFERENCE_FORMULA_REGEX.exec(formula);
+  if (referenceRegexResult) {
+    const { reference } = referenceRegexResult.groups ?? {};
+    return { type: "referenceFormula", formula, reference };
+  }
+
+  const operationRegexResult = OPERATION_FORMULA_REGEX.exec(formula);
+  if (operationRegexResult) {
+    const { operation, start, end } = operationRegexResult.groups ?? {};
+    return {
+      type: "formula",
+      formula,
+      operation: operation.toUpperCase() as Operation,
+      start: start.toUpperCase(),
+      end: end.toUpperCase(),
+    };
+  }
+
+  return { type: "invalidFormula", formula };
 }
 
 function range(start: number, end: number): readonly number[] {
