@@ -101,10 +101,11 @@ function Cell({ cellValue, onChange }: CellProps) {
   if (!focused && typeof cellValue === "number") {
     textAlign = "text-right";
   }
+
   return (
     <input
       type="text"
-      className={`h-full border-0 text-sm ${textAlign}`}
+      className={`h-full cursor-default border-0 text-sm focus:cursor-text ${textAlign}`}
       value={value}
       onChange={(event) => setValue(event.target.value)}
       onFocus={() => setFocused(true)}
