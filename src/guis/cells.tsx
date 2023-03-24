@@ -19,14 +19,13 @@ interface OperationFormula {
   type: "operationFormula";
   formula: string;
   operation: Operation;
-  start: CellReference;
-  end: CellReference;
+  references: CellId[];
 }
 
 interface ReferenceFormula {
   type: "referenceFormula";
   formula: string;
-  reference: CellReference;
+  reference: CellId;
 }
 
 interface InvalidFormula {
@@ -34,31 +33,163 @@ interface InvalidFormula {
   formula: string;
 }
 
+interface EmptyCell {
+  type: "empty";
+}
+
+interface NumberCell {
+  type: "number";
+  value: number;
+}
+
+interface StringCell {
+  type: "string";
+  value: string;
+}
+
 type Formula = OperationFormula | ReferenceFormula | InvalidFormula;
-
-type CellReference = string;
-
-type Cell =
-  | { type: "empty" }
-  | { type: "number"; value: number }
-  | { type: "string"; value: string }
-  | Formula;
-
-type State = Map<CellReference, Cell>;
+type Cell = EmptyCell | NumberCell | StringCell | Formula;
+type CellId = string;
 
 export default function Cells() {
-  const [cells, setCells] = useState<State>(new Map());
+  const [cells, setCells] = useState<Map<CellId, Cell>>(new Map());
+  const [calculatedValues, setCalculatedValues] = useState<
+    Map<CellId, number | string>
+  >(new Map());
 
-  function handleCellChange(cellReference: CellReference, cell: Cell) {
-    setCells((previousCells) => {
-      const newCells = new Map(previousCells);
-      if (cell.type === "empty") {
-        newCells.delete(cellReference);
-      } else {
-        newCells.set(cellReference, cell);
+  function handleCellChange(changedCellId: CellId, changedCell: Cell) {
+    const newCells = new Map(cells);
+    if (changedCell.type === "empty") {
+      newCells.delete(changedCellId);
+    } else {
+      newCells.set(changedCellId, changedCell);
+    }
+
+    const cellsToCalculate = new Set<CellId>(
+      getDependentCells(changedCellId, newCells)
+    );
+    if (
+      changedCell.type === "referenceFormula" ||
+      changedCell.type === "operationFormula"
+    ) {
+      cellsToCalculate.add(changedCellId);
+    }
+    let addedNewCells = true;
+    while (addedNewCells) {
+      addedNewCells = false;
+      for (const id of cellsToCalculate) {
+        for (const dependentId of getDependentCells(id, newCells)) {
+          if (!cellsToCalculate.has(dependentId)) {
+            cellsToCalculate.add(dependentId);
+            addedNewCells = true;
+          }
+        }
       }
-      return newCells;
-    });
+    }
+
+    const newCalculatedValues = new Map(calculatedValues);
+    while (cellsToCalculate.size > 0) {
+      for (const id of cellsToCalculate) {
+        const cell = newCells.get(id);
+        if (cell === undefined) {
+          throw new Error("cell from cellsToCalculate does not exist");
+        }
+        if (
+          cell.type === "referenceFormula" &&
+          !cellsToCalculate.has(cell.reference)
+        ) {
+          const referencedCell = newCells.get(cell.reference);
+          if (referencedCell === undefined) {
+            throw new Error("referenced cell does not exist");
+          }
+          let calculatedValue: number | string;
+          switch (referencedCell.type) {
+            case "operationFormula":
+            case "referenceFormula": {
+              const referencedValue = newCalculatedValues.get(cell.reference);
+              if (referencedValue === undefined) {
+                throw new Error("referenced cell has no calculated value");
+              }
+              calculatedValue = referencedValue;
+              break;
+            }
+            case "invalidFormula": {
+              calculatedValue = "#REF!";
+              break;
+            }
+            case "number":
+            case "string": {
+              calculatedValue = referencedCell.value;
+              break;
+            }
+            case "empty": {
+              calculatedValue = "";
+              break;
+            }
+          }
+          newCalculatedValues.set(id, calculatedValue);
+          cellsToCalculate.delete(id);
+        } else if (
+          cell.type === "operationFormula" &&
+          cell.references.every((reference) => !cellsToCalculate.has(reference))
+        ) {
+          const values: number[] = [];
+          for (const reference of cell.references) {
+            const referencedCell = newCells.get(reference);
+            switch (referencedCell?.type) {
+              case "operationFormula":
+              case "referenceFormula": {
+                const referencedValue = newCalculatedValues.get(reference);
+                if (referencedValue === undefined) {
+                  throw new Error("referenced cell has no calculated value");
+                }
+                if (typeof referencedValue === "number") {
+                  values.push(referencedValue);
+                }
+                break;
+              }
+              case "number": {
+                values.push(referencedCell.value);
+                break;
+              }
+              case "invalidFormula":
+              case "string":
+              case "empty": {
+                break;
+              }
+            }
+          }
+          let calculatedValue: number;
+          switch (cell.operation) {
+            case Operation.Sum: {
+              calculatedValue = values.reduce((a, b) => a + b, 0);
+              break;
+            }
+            case Operation.Average: {
+              calculatedValue =
+                values.reduce((a, b) => a + b, 0) / values.length;
+              break;
+            }
+            case Operation.Count: {
+              calculatedValue = values.length;
+              break;
+            }
+            case Operation.Max: {
+              calculatedValue = Math.max(...values);
+              break;
+            }
+            case Operation.Min: {
+              calculatedValue = Math.min(...values);
+              break;
+            }
+          }
+          newCalculatedValues.set(id, calculatedValue);
+          cellsToCalculate.delete(id);
+        }
+      }
+    }
+    setCalculatedValues(newCalculatedValues);
+    setCells(newCells);
   }
 
   return (
@@ -84,13 +215,13 @@ export default function Cells() {
                 {row}
               </th>
               {ALPHABET.map((column) => {
-                const cellReference = `${column}${row}`;
-                const cell = cells.get(cellReference) ?? { type: "empty" };
+                const id = `${column}${row}`;
                 return (
                   <td key={column} className="h-8 border border-neutral-400">
                     <Cell
-                      cell={cell}
-                      onChange={(cell) => handleCellChange(cellReference, cell)}
+                      cell={cells.get(id) ?? { type: "empty" }}
+                      calculatedValue={calculatedValues.get(id)}
+                      onChange={(cell) => handleCellChange(id, cell)}
                     />
                   </td>
                 );
@@ -106,10 +237,31 @@ export default function Cells() {
 interface CellProps {
   cell: Cell;
   onChange: (cell: Cell) => void;
+  calculatedValue?: number | string;
 }
-function Cell({ cell, onChange }: CellProps) {
+function Cell({ cell, onChange, calculatedValue }: CellProps) {
   const [inputValue, setInputValue] = useState("");
   const [focused, setFocused] = useState(false);
+
+  const dynamicClasses = [];
+
+  let displayValue: string | number = inputValue;
+  if (!focused) {
+    if (cell.type === "operationFormula" || cell.type === "referenceFormula") {
+      if (calculatedValue === undefined) {
+        throw new Error("formula without calculated value");
+      }
+      displayValue = calculatedValue;
+    }
+    if (cell.type === "invalidFormula") {
+      displayValue = "#NAME?";
+      dynamicClasses.push("bg-red-300");
+    }
+  }
+
+  if (!focused && !Number.isNaN(Number(displayValue))) {
+    dynamicClasses.push("text-right");
+  }
 
   function handleBlur() {
     setFocused(false);
@@ -127,16 +279,13 @@ function Cell({ cell, onChange }: CellProps) {
     onChange(cell);
   }
 
-  let textAlign = "text-left";
-  if (!focused && cell.type === "number") {
-    textAlign = "text-right";
-  }
-
   return (
     <input
       type="text"
-      className={`h-full cursor-default border-0 text-sm focus:cursor-text ${textAlign}`}
-      value={inputValue}
+      className={`h-full cursor-default border-0 text-sm focus:cursor-text ${dynamicClasses.join(
+        " "
+      )}`}
+      value={displayValue}
       onChange={(event) => setInputValue(event.target.value)}
       onFocus={() => setFocused(true)}
       onBlur={handleBlur}
@@ -173,11 +322,38 @@ function parseOperationFormula(formula: string): OperationFormula | undefined {
       type: "operationFormula",
       formula,
       operation: operation.toUpperCase() as Operation,
-      start: start.toUpperCase(),
-      end: end.toUpperCase(),
+      references: getCellIdsInRange(start, end),
     };
   }
   return undefined;
+}
+
+function getCellIdsInRange(start: CellId, end: CellId): CellId[] {
+  const startColumn = start[0].toUpperCase();
+  const startRow = Number(start.slice(1));
+  const endColumn = end[0].toUpperCase();
+  const endRow = Number(end.slice(1));
+  const columnRange = range(
+    ALPHABET.indexOf(startColumn),
+    ALPHABET.indexOf(endColumn) + 1
+  );
+  const rowRange = range(startRow, endRow + 1);
+  return columnRange.flatMap((column) =>
+    rowRange.map((row) => `${ALPHABET[column]}${row}`)
+  );
+}
+
+function getDependentCells(id: CellId, cells: Map<CellId, Cell>): CellId[] {
+  return [...cells.entries()]
+    .filter(([, cell]) => {
+      if (cell.type === "referenceFormula") {
+        return cell.reference === id;
+      } else if (cell.type === "operationFormula") {
+        return cell.references.includes(id);
+      }
+      return false;
+    })
+    .map(([id]) => id);
 }
 
 function range(start: number, end: number): readonly number[] {
