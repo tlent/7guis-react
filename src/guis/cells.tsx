@@ -16,7 +16,7 @@ enum Operation {
 }
 
 interface OperationFormula {
-  type: "formula";
+  type: "operationFormula";
   formula: string;
   operation: Operation;
   start: CellReference;
@@ -145,25 +145,39 @@ function Cell({ cell, onChange }: CellProps) {
 }
 
 function parseFormula(formula: string): Formula {
-  const referenceRegexResult = REFERENCE_FORMULA_REGEX.exec(formula);
-  if (referenceRegexResult) {
-    const { reference } = referenceRegexResult.groups ?? {};
+  const referenceFormula = parseReferenceFormula(formula);
+  if (referenceFormula) {
+    return referenceFormula;
+  }
+  const operationFormula = parseOperationFormula(formula);
+  if (operationFormula) {
+    return operationFormula;
+  }
+  return { type: "invalidFormula", formula };
+}
+
+function parseReferenceFormula(formula: string): ReferenceFormula | undefined {
+  const result = REFERENCE_FORMULA_REGEX.exec(formula);
+  if (result) {
+    const { reference } = result.groups ?? {};
     return { type: "referenceFormula", formula, reference };
   }
+  return undefined;
+}
 
-  const operationRegexResult = OPERATION_FORMULA_REGEX.exec(formula);
-  if (operationRegexResult) {
-    const { operation, start, end } = operationRegexResult.groups ?? {};
+function parseOperationFormula(formula: string): OperationFormula | undefined {
+  const result = OPERATION_FORMULA_REGEX.exec(formula);
+  if (result) {
+    const { operation, start, end } = result.groups ?? {};
     return {
-      type: "formula",
+      type: "operationFormula",
       formula,
       operation: operation.toUpperCase() as Operation,
       start: start.toUpperCase(),
       end: end.toUpperCase(),
     };
   }
-
-  return { type: "invalidFormula", formula };
+  return undefined;
 }
 
 function range(start: number, end: number): readonly number[] {
