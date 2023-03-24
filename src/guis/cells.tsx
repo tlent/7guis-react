@@ -3,7 +3,7 @@ import { useState } from "react";
 const ALPHABET = [..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"];
 const ROW_COUNT = 100;
 
-const REFERENCE_FORMULA_REGEX = /^=(?<reference>[a-z]\d+)$/i;
+const REFERENCE_FORMULA_REGEX = /^=\s*(?<reference>[a-z]\d+)\s*$/i;
 const OPERATION_FORMULA_REGEX =
   /^=\s*(?<operation>sum|average|count|max|min)\s*\(\s*(?<start>[a-z]\d+)\s*:\s*(?<end>[a-z]\d+)\s*\)\s*$/i;
 
