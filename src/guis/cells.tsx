@@ -363,7 +363,11 @@ function parseReferenceFormula(formula: string): ReferenceFormula | undefined {
   const result = REFERENCE_FORMULA_REGEX.exec(formula);
   if (result) {
     const { reference } = result.groups ?? {};
-    return { type: "referenceFormula", formula, reference };
+    return {
+      type: "referenceFormula",
+      formula,
+      reference: reference.toUpperCase(),
+    };
   }
   return undefined;
 }
