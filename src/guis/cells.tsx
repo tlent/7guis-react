@@ -98,10 +98,9 @@ export default function Cells() {
           cell.type === "referenceFormula" &&
           !cellsToCalculate.has(cell.reference)
         ) {
-          const referencedCell = newCells.get(cell.reference);
-          if (referencedCell === undefined) {
-            throw new Error("referenced cell does not exist");
-          }
+          const referencedCell = newCells.get(cell.reference) ?? {
+            type: "empty",
+          };
           let calculatedValue: number | string;
           switch (referencedCell.type) {
             case "operationFormula":
