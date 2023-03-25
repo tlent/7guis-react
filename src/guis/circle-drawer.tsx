@@ -22,10 +22,12 @@ export default function CircleDrawer() {
 
   function undo() {
     setHistoryIndex(Math.max(0, historyIndex - 1));
+    setSelectedCircle(undefined);
   }
 
   function redo() {
     setHistoryIndex(Math.min(history.length - 1, historyIndex + 1));
+    setSelectedCircle(undefined);
   }
 
   function handleBoxClick(event: React.MouseEvent<HTMLDivElement>) {
