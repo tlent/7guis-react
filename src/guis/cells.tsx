@@ -7,6 +7,8 @@ const REFERENCE_FORMULA_REGEX = /^=\s*(?<reference>[a-z]\d+)\s*$/i;
 const OPERATION_FORMULA_REGEX =
   /^=\s*(?<operation>sum|average|count|max|min)\s*\(\s*(?<start>[a-z]\d+)\s*:\s*(?<end>[a-z]\d+)\s*\)\s*$/i;
 
+const EMPTY_CELL = { type: "empty" } as const;
+
 enum Operation {
   Sum = "SUM",
   Average = "AVERAGE",
@@ -98,9 +100,7 @@ export default function Cells() {
           cell.type === "referenceFormula" &&
           !cellsToCalculate.has(cell.reference)
         ) {
-          const referencedCell = newCells.get(cell.reference) ?? {
-            type: "empty",
-          };
+          const referencedCell = newCells.get(cell.reference) ?? EMPTY_CELL;
           let calculatedValue: number | string;
           switch (referencedCell.type) {
             case "operationFormula":
@@ -218,7 +218,7 @@ export default function Cells() {
                 return (
                   <td key={column} className="h-8 border border-neutral-400">
                     <Cell
-                      cell={cells.get(id) ?? { type: "empty" }}
+                      cell={cells.get(id) ?? EMPTY_CELL}
                       calculatedValue={calculatedValues.get(id)}
                       onChange={(cell) => handleCellChange(id, cell)}
                     />
@@ -270,7 +270,7 @@ function Cell({ cell, onChange, calculatedValue }: CellProps) {
     const number = Number(inputValue);
     let cell: Cell;
     if (inputValue === "") {
-      cell = { type: "empty" };
+      cell = EMPTY_CELL;
     } else if (inputValue.startsWith("=")) {
       cell = parseFormula(inputValue);
     } else if (Number.isNaN(number)) {
