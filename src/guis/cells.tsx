@@ -307,14 +307,26 @@ const Cell = memo(function Cell({
   }
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "Enter") {
-      if (focused) {
-        handleBlur();
+    switch (event.key) {
+      case "Enter": {
+        if (focused) {
+          handleBlur();
+        }
+        setFocused(!focused);
+        break;
       }
-      setFocused(!focused);
-    } else if (event.key === "Escape") {
-      setFocused(false);
-      handleBlur();
+      case "Escape": {
+        setFocused(false);
+        handleBlur();
+        break;
+      }
+      default: {
+        if (!focused) {
+          setFocused(true);
+          setInputValue("");
+        }
+        break;
+      }
     }
   }
 
