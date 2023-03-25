@@ -259,6 +259,9 @@ function Cell({ cell, onChange, calculatedValue }: CellProps) {
     }
   }
 
+  if (focused) {
+    dynamicClasses.push("cursor-text");
+  }
   if (!focused && !Number.isNaN(Number(displayValue))) {
     dynamicClasses.push("text-right");
   }
@@ -282,12 +285,13 @@ function Cell({ cell, onChange, calculatedValue }: CellProps) {
   return (
     <input
       type="text"
-      className={`h-full cursor-default border-0 text-sm focus:cursor-text ${dynamicClasses.join(
+      className={`h-full cursor-default border-0 text-sm ${dynamicClasses.join(
         " "
       )}`}
+      readOnly={!focused}
       value={displayValue}
       onChange={(event) => setInputValue(event.target.value)}
-      onFocus={() => setFocused(true)}
+      onDoubleClick={() => setFocused(true)}
       onBlur={handleBlur}
     />
   );
