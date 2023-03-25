@@ -282,6 +282,14 @@ function Cell({ cell, onChange, calculatedValue }: CellProps) {
     onChange(cell);
   }
 
+  function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Enter") {
+      setFocused(!focused);
+    } else if (event.key === "Escape") {
+      setFocused(false);
+    }
+  }
+
   return (
     <input
       type="text"
@@ -293,6 +301,7 @@ function Cell({ cell, onChange, calculatedValue }: CellProps) {
       onChange={(event) => setInputValue(event.target.value)}
       onDoubleClick={() => setFocused(true)}
       onBlur={handleBlur}
+      onKeyDown={handleKeyDown}
     />
   );
 }
