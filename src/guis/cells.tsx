@@ -340,6 +340,7 @@ const Cell = memo(function Cell({
       value={displayValue}
       onChange={(event) => setInputValue(event.target.value)}
       onDoubleClick={() => setFocused(true)}
+      onTouchStart={() => setFocused(true)}
       onBlur={handleBlur}
       onKeyDown={handleKeyDown}
     />
